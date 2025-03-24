@@ -9,6 +9,7 @@ import com.gabrielsmm.springjwtboilerplate.services.exceptions.IntegridadeDeDado
 import com.gabrielsmm.springjwtboilerplate.services.exceptions.ObjetoNaoEncontradoException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -49,8 +50,10 @@ public class UsuarioService {
         try {
             usuario = usuarioRepository.save(usuario);
             return modelMapper.map(usuario, UsuarioResponseDTO.class);
+        } catch (DataIntegrityViolationException e) {
+            throw new IntegridadeDeDadosException("Erro ao salvar usuário. Verifique se o nome de usuário já existe.");
         } catch (Exception e) {
-            throw new ErroAoSalvarObjetoException("Erro ao salvar usuário: %s".formatted(e.getMessage()));
+            throw new ErroAoSalvarObjetoException("Erro ao salvar usuário: " + e.getMessage());
         }
     }
 
@@ -60,8 +63,10 @@ public class UsuarioService {
         try {
             usuario = usuarioRepository.save(usuario);
             return modelMapper.map(usuario, UsuarioResponseDTO.class);
+        } catch (DataIntegrityViolationException e) {
+            throw new IntegridadeDeDadosException("Erro ao atualizar usuário. Verifique se o nome de usuário já existe.");
         } catch (Exception e) {
-            throw new ErroAoSalvarObjetoException("Erro ao atualizar usuário: %s".formatted(e.getMessage()));
+            throw new ErroAoSalvarObjetoException("Erro ao atualizar usuário: " + e.getMessage());
         }
     }
 
@@ -69,8 +74,10 @@ public class UsuarioService {
         buscarPorId(id);
         try {
             usuarioRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new IntegridadeDeDadosException("Erro ao deletar usuário. Verifique se o usuário possui registros associados.");
         } catch (Exception e) {
-            throw new IntegridadeDeDadosException("Erro ao deletar usuário: %s".formatted(e.getMessage()));
+            throw new ErroAoSalvarObjetoException("Erro ao deletar usuário: " + e.getMessage());
         }
     }
 
